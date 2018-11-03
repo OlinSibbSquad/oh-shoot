@@ -1,15 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            "sha256": "ad74f5b475481d4ea5e1abe38e609b469484ed6c1996c20af29d669f01e29338"
-=======
-            "sha256": "43b375221dc7d209df7507497b38ef4fdd1144b290dd6d45db034195ba5f0bfc"
->>>>>>> Stashed changes
-=======
             "sha256": "4ef8a5e1d7173f7c5ffa8497fca373bf57d7efc92c12b61a5e90491b2322cd8f"
->>>>>>> Stashed changes
         },
         "pipfile-spec": 6,
         "requires": {
@@ -270,13 +262,6 @@
             ],
             "index": "pypi",
             "version": "==3.4.3.18"
-        },
-        "paho-mqtt": {
-            "hashes": [
-                "sha256:e440a052b46d222e184be3be38676378722072fcd4dfd2c8f509fb861a7b0b79"
-            ],
-            "index": "pypi",
-            "version": "==1.4.0"
         },
         "pillow": {
             "hashes": [
