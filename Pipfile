@@ -12,6 +12,7 @@ pillow = "*"
 google-cloud-vision = "*"
 google-cloud = "*"
 pyfirmata = "*"
+"pycreate2" = "*"
 
 [requires]
 python_version = "3"
