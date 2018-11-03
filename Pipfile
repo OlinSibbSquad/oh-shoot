@@ -12,6 +12,8 @@ pillow = "*"
 google-cloud-vision = "*"
 google-cloud = "*"
 pyfirmata = "*"
+opencv-python = "*"
+numpy = "*"
 
 [requires]
 python_version = "3"
