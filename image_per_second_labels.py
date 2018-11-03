@@ -17,13 +17,9 @@
 """Draws squares around detected faces in the given image."""
 
 import argparse
-
-# [START vision_face_detection_tutorial_imports]
 from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
-# [END vision_face_detection_tutorial_imports]
-
 import cv2
 import time
 import io
