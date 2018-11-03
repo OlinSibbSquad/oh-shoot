@@ -6,11 +6,15 @@ board = Arduino('/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_55432333038
 print('Connected')
 
 board.analog[0].enable_reporting()
+it = util.Iterator(board)
+it.start()
+board.iterate()
 
 LED_PIN = 13
 
-for i in range(10):
-    board.iterate()
+for i in range(100):
     print(board.analog[0].read())
     board.digital[LED_PIN].write(i%2==0)
-    sleep(0.5)
+    sleep(0.1)
+
+board.exit()
