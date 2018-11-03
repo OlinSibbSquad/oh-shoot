@@ -26,6 +26,30 @@ from PIL import Image, ImageDraw
 
 import cv2
 import time
+import io
+import os
+
+def explicit():
+    from google.cloud import storage
+    import os, sys
+
+    # Explicitly use service account credentials by specifying the private key
+    # file.
+    print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    test = open(os.path.join(__location__, 'SibbSquadV2-8e1c8113e39c.json'), 'r');
+    loc = sys.path[0] + '/SibbSquadV2-8e1c8113e39c.json'
+    storage_client = storage.Client.from_service_account_json('SibbSquadV2-8e1c8113e39c.json')
+    # print(test)
+    # print("1")
+    test.read()
+    # print(sys.path[0])
+    # print("2")
+    # Make an authenticated API request
+    buckets = list(storage_client.list_buckets())
+    # print(buckets)
+
+
 
 
 # [START vision_face_detection_tutorial_send_request]
@@ -49,6 +73,28 @@ def detect_face(face_file, max_results=4):
 # [END vision_face_detection_tutorial_send_request]
 
 
+
+def detect_labels(path):
+    """Detects labels in the file."""
+    from google.cloud import vision
+    client = vision.ImageAnnotatorClient()
+
+    with io.open(path, 'rb') as image_file:
+        content = image_file.read()
+
+    image = vision.types.Image(content=content)
+
+    response = client.label_detection(image=image)
+    labels = response.label_annotations
+    print('Labels:')
+
+    for label in labels:
+        print(label.description)
+
+
+
+
+
 # [START vision_face_detection_tutorial_process_response]
 def highlight_faces(image, faces, output_filename):
     """Draws a polygon around the faces, then saves to output_filename.
@@ -69,7 +115,56 @@ def highlight_faces(image, faces, output_filename):
         draw.line(box + [box[0]], width=5, fill='#00ff00')
 
     im.save(output_filename)
-# [END vision_face_detection_tutorial_process_response]
+# [END vision_face_detection_tutorial_process_response
+
+def highlight_objects(image, faces, output_filename):
+    """Draws a polygon around the faces, then saves to output_filename.
+
+    Args:
+      image: a file containing the image with the faces.
+      faces: a list of faces found in the file. This should be in the format
+          returned by the Vision API.
+      output_filename: the name of the image file to be created, where the
+          faces have polygons drawn around them.
+    """
+    im = Image.open(image)
+    draw = ImageDraw.Draw(im)
+
+    for face in faces:
+        if (face.name in["Person", "Man", "Woman", "Girl", "Boy"]) and (face.score > 0.65):
+            box = [(vertex.x*im.width, vertex.y*im.height)
+                   for vertex in face.bounding_poly.normalized_vertices]
+            draw.line(box + [box[0]], width=5, fill='#00ff00')
+
+    im.save("output_filename.png")
+
+def label_finding(name):
+    """Localize objects in the local image.
+
+    Args:
+    path: The path to the local file.
+    """
+    client = vision.ImageAnnotatorClient()
+
+    with open(name, 'rb') as image_file:
+        content = image_file.read()
+    image = vision.types.Image(content=content)
+    # draw = ImageDraw.Draw(image)
+
+    objects = client.object_localization(image=image).localized_object_annotations
+
+    print('Number of objects found: {}'.format(len(objects)))
+    for object_ in objects:
+        print('\n{} (confidence: {})'.format(object_.name, object_.score))
+        print('Normalized bounding polygon vertices: ')
+    #
+        for vertex in object_.bounding_poly.normalized_vertices:
+            print(' - ({}, {})'.format(vertex.x, vertex.y))
+        for vertex in object_.bounding_poly.vertices:
+            print(' - ({}, {})'.format(vertex.x, vertex.y))
+
+
+    highlight_objects(name, objects, "output_test_1.jpg")
 
 
 # [START vision_face_detection_tutorial_run_application]
@@ -85,25 +180,7 @@ def main(input_filename, output_filename, max_results):
         highlight_faces(image, faces, output_filename)
 # [END vision_face_detection_tutorial_run_application]
 
-def explicit():
-    from google.cloud import storage
-    import os, sys
 
-    # Explicitly use service account credentials by specifying the private key
-    # file.
-    print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-    test = open(os.path.join(__location__, 'SibbSquadV2-8e1c8113e39c.json'), 'r');
-    loc = sys.path[0] + '/SibbSquadV2-8e1c8113e39c.json'
-    storage_client = storage.Client.from_service_account_json('SibbSquadV2-8e1c8113e39c.json')
-    # print(test)
-    print("1")
-    test.read()
-    print(sys.path[0])
-    print("2")
-    # Make an authenticated API request
-    buckets = list(storage_client.list_buckets())
-    print(buckets)
 
 def cvImage():
     curr = 0
@@ -113,7 +190,7 @@ def cvImage():
 
     img_counter = 0
 
-    for x in range(0, 100):
+    for x in range(0, 20):
         ret, frame = cam.read()
         cv2.imshow("test", frame)
         k = cv2.waitKey(1)
@@ -132,6 +209,7 @@ def cvImage():
             out = "test2out.png"
             max_results = 10
             main(img_name, img_out_name, 10)
+            label_finding(img_name)
             curr += 1
         time.sleep(0.05)
 
