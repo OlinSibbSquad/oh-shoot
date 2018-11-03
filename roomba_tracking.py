@@ -39,15 +39,52 @@ def bounding_boxes(name, out_name, verbosity):
     if(verbosity > 1):
         im.save(out_name)
     new_list.insert((im.width, im.height),0)
-    return out_name
+    return new_list
 
-def follow_person(verbosity):
+def calculate_areas(people, height, width):
+    """
+    Calculates the area of each bounding box a set of bounding boxes.
+    Returns the information of the largest.
+
+    people : normalized bounding boxes.
+    h, w : image height and width.
+    """
+    max_area = 0
+    max_area_location = 0
+    for i in range(len(people)):
+        sum = 0
+        for vertex in item.bounding_poly.normalized_vertices:
+            sum += vertex.x * width + vertex.y * height
+        sum /= 4
+        if (sum > max_area):
+            max_area = sum
+            max_area_location = i
+    return (max_area_location, max_area)
+
+def calculate_center(item, width, height):
+    """
+    Calculates center of bounding box associated with found object.
+    """
+    sumx = 0
+    sumy = 0
+    for vertex in item.bounding_poly.normalized_vertices:
+        sumx += vertex.x * width
+        sumy += vertex.y * height
+    sumx /= 4
+    sumy /= 4
+    return (sumx, sumy)
+
+def follow_person(verbosity = 2):
+    #roombaaaaaa
+    bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
 	# This camera will point to the camera on the Roomba.
 	cam = cv2.VideoCapture(0)
 	cv2.namedWindow("test")
 	img_counter = 0
 	current = 0
-
+    previous_max = None
+    current_max = None
+    # last_center = (1280/2, 640/2) #Dimensions?!?!??!!??!!? TODO
 	# The number of times to search for a person.
 	for x in range(0, CYCLES):
 		ret, frame = cam.read()
@@ -57,7 +94,15 @@ def follow_person(verbosity):
 		out_name = "following_test" + str(x) + "_out.png"
 		cv2.imwrite(name, frame)
 	# Find bounding boxes for every person in the roomba's field of view.
-		bounding_boxes(name, out_name, verbosity)
+		people = bounding_boxes(name, out_name, verbosity)
+        (height, width) = people.pop()
+        (location, area) = calculate_areas(people, height, width)
+        current_max = people[location]
+        center = calculate_center(current_max, heigh, width)
+
+        #TODO: Turn
+
+
 		time.sleep(0.05)
 	cam.release()
 	cv2.destroyAllWindows()
