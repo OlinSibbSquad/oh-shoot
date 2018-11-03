@@ -10,6 +10,7 @@ import cv2
 import time
 import io
 import os
+from roomba_tracking import *
 
 def explicit():
     from google.cloud import storage
@@ -64,7 +65,6 @@ def label_finding(name, out, verbosity):
     with open(name, 'rb') as image_file:
         content = image_file.read()
     image = vision.types.Image(content=content)
-    # draw = ImageDraw.Draw(image)
 
     objects = client.object_localization(image=image).localized_object_annotations
     if(verbosity > 1):
@@ -91,7 +91,6 @@ def cvImage(verbosity):
         ret, frame = cam.read()
         cv2.imshow("test", frame)
         k = cv2.waitKey(1)
-        # time.sleep(1) #sleep is in seconds.
         if (x%20 == 0): #select 1 in 20 images to analyze
             last_peepcount = peep_num
             temp = curr % 10
@@ -101,16 +100,14 @@ def cvImage(verbosity):
             if (verbosity > 0):
                 print("{} written!".format(img_name))
             img_counter += 1
-            # curr_image = "test1.png"
             img_out_name = "test" + str(temp) + "out.png"
-            # out = "test2out.png"
             max_results = 10
             peep_num = label_finding(img_name, img_out_name, verbosity)
             curr += 1
         # Peep_num logic, where we save if there's 1 person and remembers when it drops to 0
         if(peep_num == 0 & last_peepcount > 0):
             #Take sweet, sweet revenge if the light is on
-            pass
+            follow_person()
         time.sleep(0.05)
     cam.release()
     cv2.destroyAllWindows()
