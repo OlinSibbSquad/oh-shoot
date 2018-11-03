@@ -12,8 +12,10 @@ pillow = "*"
 google-cloud-vision = "*"
 google-cloud = "*"
 pyfirmata = "*"
+"pycreate2" = "*"
 opencv-python = "*"
 numpy = "*"
+paho-mqtt = "*"
 
 [requires]
 python_version = "3"

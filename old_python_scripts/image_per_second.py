@@ -106,31 +106,34 @@ def explicit():
     print(buckets)
 
 def cvImage():
-
+    curr = 0
     cam = cv2.VideoCapture(1)
 
     cv2.namedWindow("test")
 
     img_counter = 0
 
-    for x in range(0, 10):
+    for x in range(0, 100):
         ret, frame = cam.read()
         cv2.imshow("test", frame)
-        # k = cv2.waitKey(1)
-        temp = x % 10
-        string ="test" + str(temp) + ".png" #LIMITS MAX NUMBER OF PICTURES WE WILL SAVE
-        img_name = string.format(img_counter)
-        cv2.imwrite(img_name, frame)
-        print("{} written!".format(img_name))
-        img_counter += 1
+        k = cv2.waitKey(1)
+        # time.sleep(1) #sleep is in seconds.
+        if (x%20 == 0):
 
-        # curr_image = "test1.png"
-        img_out_name = "test" + str(temp) + "out.png"
-        out = "test2out.png"
-        max_results = 10
-        time.sleep(1) #sleep is in seconds.
+            temp = curr % 10
+            string ="test" + str(temp) + ".png" #LIMITS MAX NUMBER OF PICTURES WE WILL SAVE
+            img_name = string.format(img_counter)
+            cv2.imwrite(img_name, frame)
+            print("{} written!".format(img_name))
+            img_counter += 1
 
-        main(img_name, img_out_name, 10)
+            # curr_image = "test1.png"
+            img_out_name = "test" + str(temp) + "out.png"
+            out = "test2out.png"
+            max_results = 10
+            main(img_name, img_out_name, 10)
+            curr += 1
+        time.sleep(0.05)
 
 
     cam.release()
