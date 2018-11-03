@@ -11,6 +11,7 @@ google-cloud-datastore = "*"
 pillow = "*"
 google-cloud-vision = "*"
 google-cloud = "*"
+pyfirmata = "*"
 
 [requires]
-python_version = "3.5"
+python_version = "3"

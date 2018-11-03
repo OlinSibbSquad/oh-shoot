@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3cb6b04c4b1e0291ef0fda890e51b39b2dc488c402af60eee6d2cd5729430c6d"
+            "sha256": "698ff0041c95770ae01013da076652adea8e4cca2db8ac6e68aa710becea4129"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.5"
+            "python_version": "3"
         },
         "sources": [
             {
@@ -221,6 +221,21 @@
                 "sha256:a38a8811ea784c0136abfdba73963876328f66172db21a05a82f9515909bfb4e"
             ],
             "version": "==0.2.2"
+        },
+        "pyfirmata": {
+            "hashes": [
+                "sha256:3e0ef63277b357c79fdbf8b4ba227fc83abaf981a363cf077276cfa61a136c75",
+                "sha256:b54d49d66a9d93c1ef9c72ca01264414cb2de177baac116c12d5cce0c380160c"
+            ],
+            "index": "pypi",
+            "version": "==1.0.3"
+        },
+        "pyserial": {
+            "hashes": [
+                "sha256:6e2d401fdee0eab996cf734e67773a0143b932772ca8b42451440cfed942c627",
+                "sha256:e0770fadba80c31013896c7e6ef703f72e7834965954a78e71a3049488d4d7d8"
+            ],
+            "version": "==3.4"
         },
         "pytz": {
             "hashes": [
