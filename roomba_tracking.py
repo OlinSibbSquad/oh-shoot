@@ -14,7 +14,7 @@ def bounding_boxes(name, out_name, verbosity):
 
     with open(name, 'rb') as image_file:
     	content = image_file.read()
-    
+
     image = vision.types.Image(content=content)
     objects = client.object_localization(image=image).localized_object_annotations
     if(verbosity > 1):
@@ -28,23 +28,26 @@ def bounding_boxes(name, out_name, verbosity):
     im = Image.open(name)
     draw = ImageDraw.Draw(im)
 
+    new_list = []
     for item in objects:
         if (item.name in["Person", "Man", "Woman", "Girl", "Boy"]) and (item.score > 0.65):
             if (verbosity > 0):
                 box = [(vertex.x*im.width, vertex.y*im.height)
                        for vertex in item.bounding_poly.normalized_vertices]
                 draw.line(box + [box[0]], width=5, fill='#00ff00')
+            new_list.append(item)
     if(verbosity > 1):
         im.save(out_name)
+    new_list.insert((im.width, im.height),0)
     return out_name
 
-def follow_person(verbosity):	
+def follow_person(verbosity):
 	# This camera will point to the camera on the Roomba.
 	cam = cv2.VideoCapture(0)
 	cv2.namedWindow("test")
 	img_counter = 0
 	current = 0
-	
+
 	# The number of times to search for a person.
 	for x in range(0, CYCLES):
 		ret, frame = cam.read()
