@@ -13,6 +13,8 @@ google-cloud-vision = "*"
 google-cloud = "*"
 pyfirmata = "*"
 "pycreate2" = "*"
+opencv-python = "*"
+numpy = "*"
 
 [requires]
 python_version = "3"
