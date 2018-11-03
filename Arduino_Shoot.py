@@ -12,8 +12,8 @@ board.iterate()
 
 LED_PIN = 13
 trigtime = 0.6
-triggered_angle = 45
-default_angle = 90
+triggered_angle = 40
+default_angle = 100
 servo = board.get_pin('d:3:s')
 light = board.get_pin('a:0:i')
 led = board.get_pin('d:13:o')
