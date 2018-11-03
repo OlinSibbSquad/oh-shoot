@@ -6,6 +6,11 @@ name = "pypi"
 [dev-packages]
 
 [packages]
+google-cloud-storage = "*"
+google-cloud-datastore = "*"
+pillow = "*"
+google-cloud-vision = "*"
+google-cloud = "*"
 pyfirmata = "*"
 
 [requires]
