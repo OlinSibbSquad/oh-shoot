@@ -1,7 +1,7 @@
 from pyfirmata import Arduino, util
 from time import sleep
 
-board = Arduino('/dev/ttyUSB2')
+board = Arduino('/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0')
 print('Connected')
 
 board.analog[0].enable_reporting()
