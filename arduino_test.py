@@ -12,9 +12,14 @@ board.iterate()
 
 LED_PIN = 13
 
+servo = board.get_pin('d:3:s')
+light = board.get_pin('a:0:i')
+led = board.get_pin('d:13:o')
+
 for i in range(100):
-    print(board.analog[0].read())
-    board.digital[LED_PIN].write(i%2==0)
+    print(light.read())
+    led.write(i%2==0)
+    servo.write(i)
     sleep(0.1)
 
 board.exit()
