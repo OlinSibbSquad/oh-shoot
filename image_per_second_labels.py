@@ -50,73 +50,6 @@ def explicit():
     # print(buckets)
 
 
-
-
-# [START vision_face_detection_tutorial_send_request]
-def detect_face(face_file, max_results=4):
-    """Uses the Vision API to detect faces in the given file.
-
-    Args:
-        face_file: A file-like object containing an image with faces.
-
-    Returns:
-        An array of Face objects with information about the picture.
-    """
-    # [START vision_face_detection_tutorial_client]
-    client = vision.ImageAnnotatorClient()
-    # [END vision_face_detection_tutorial_client]
-
-    content = face_file.read()
-    image = types.Image(content=content)
-
-    return client.face_detection(image=image).face_annotations
-# [END vision_face_detection_tutorial_send_request]
-
-
-
-def detect_labels(path):
-    """Detects labels in the file."""
-    from google.cloud import vision
-    client = vision.ImageAnnotatorClient()
-
-    with io.open(path, 'rb') as image_file:
-        content = image_file.read()
-
-    image = vision.types.Image(content=content)
-
-    response = client.label_detection(image=image)
-    labels = response.label_annotations
-    print('Labels:')
-
-    for label in labels:
-        print(label.description)
-
-
-
-
-
-# [START vision_face_detection_tutorial_process_response]
-def highlight_faces(image, faces, output_filename):
-    """Draws a polygon around the faces, then saves to output_filename.
-
-    Args:
-      image: a file containing the image with the faces.
-      faces: a list of faces found in the file. This should be in the format
-          returned by the Vision API.
-      output_filename: the name of the image file to be created, where the
-          faces have polygons drawn around them.
-    """
-    im = Image.open(image)
-    draw = ImageDraw.Draw(im)
-
-    for face in faces:
-        box = [(vertex.x, vertex.y)
-               for vertex in face.bounding_poly.vertices]
-        draw.line(box + [box[0]], width=5, fill='#00ff00')
-
-    im.save(output_filename)
-# [END vision_face_detection_tutorial_process_response
-
 def highlight_objects(image, faces, output_filename):
     """Draws a polygon around the faces, then saves to output_filename.
 
@@ -138,7 +71,7 @@ def highlight_objects(image, faces, output_filename):
 
     im.save("output_filename.png")
 
-def label_finding(name):
+def label_finding(name, out):
     """Localize objects in the local image.
 
     Args:
@@ -157,37 +90,18 @@ def label_finding(name):
     for object_ in objects:
         print('\n{} (confidence: {})'.format(object_.name, object_.score))
         print('Normalized bounding polygon vertices: ')
-    #
         for vertex in object_.bounding_poly.normalized_vertices:
             print(' - ({}, {})'.format(vertex.x, vertex.y))
         for vertex in object_.bounding_poly.vertices:
             print(' - ({}, {})'.format(vertex.x, vertex.y))
 
-
-    highlight_objects(name, objects, "output_test_1.jpg")
-
-
-# [START vision_face_detection_tutorial_run_application]
-def main(input_filename, output_filename, max_results):
-    with open(input_filename, 'rb') as image:
-        faces = detect_face(image, max_results)
-        print('Found {} face{}'.format(
-            len(faces), '' if len(faces) == 1 else 's'))
-
-        print('Writing to file {}'.format(output_filename))
-        # Reset the file pointer, so we can read the file again
-        image.seek(0)
-        highlight_faces(image, faces, output_filename)
-# [END vision_face_detection_tutorial_run_application]
-
+    highlight_objects(name, objects, out)
 
 
 def cvImage():
     curr = 0
     cam = cv2.VideoCapture(1)
-
     cv2.namedWindow("test")
-
     img_counter = 0
 
     for x in range(0, 20):
@@ -195,8 +109,7 @@ def cvImage():
         cv2.imshow("test", frame)
         k = cv2.waitKey(1)
         # time.sleep(1) #sleep is in seconds.
-        if (x%20 == 0):
-
+        if (x%20 == 0): #select 1 in 20 images to analyze
             temp = curr % 10
             string ="test" + str(temp) + ".png" #LIMITS MAX NUMBER OF PICTURES WE WILL SAVE
             img_name = string.format(img_counter)
@@ -208,14 +121,10 @@ def cvImage():
             img_out_name = "test" + str(temp) + "out.png"
             out = "test2out.png"
             max_results = 10
-            main(img_name, img_out_name, 10)
-            label_finding(img_name)
+            label_finding(img_name, out)
             curr += 1
         time.sleep(0.05)
-
-
     cam.release()
-
     cv2.destroyAllWindows()
     return
 
