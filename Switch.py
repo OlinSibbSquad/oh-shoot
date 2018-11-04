@@ -1,4 +1,5 @@
 from pyfirmata import Arduino, util
+import pyfirmata
 from time import sleep
 
 board = Arduino('/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0') # Nano
@@ -6,14 +7,16 @@ board = Arduino('/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0') # Nano
 print('Connected')
 
 
-value = board.get_pin('d:4:i')
+value = board.get_pin('d:4:i')  # type: pyfirmata.Pin
 
 it = util.Iterator(board)
 it.start()
 board.iterate()
-# value.enable_reporting()
 
-value.
+PIN_MODE_PULLUP = 0x0B
+
+msg = bytearray([pyfirmata.SET_PIN_MODE, value.pin_number, PIN_MODE_PULLUP])
+value.board.sp.write(msg)
 
 while True:
     input = value.read()
@@ -21,6 +24,7 @@ while True:
         print('Switch is High')
     else:
         print('Switch is Low')
+    sleep(0.1)
 # for i in range (1000):
 #     print('Switch State: %s')% value.read()
 #     if str(value.read()) == 'True':

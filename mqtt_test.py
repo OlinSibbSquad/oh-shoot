@@ -25,7 +25,7 @@ sleep(1)
 client.subscribe(CHANNEL)
 
 import sys
-if sys.argv[1] == 'subscribe':
+if len(sys.argv)>1 and sys.argv[1] == 'subscribe':
     print('subscribing')
     client.loop_forever()
 else:
@@ -34,6 +34,6 @@ else:
     print(msg)
     client.publish(CHANNEL, msg, qos=1)
 
-    # client.loop_start()
+    client.loop_start()
     sleep(2)
-    # client.loop_stop()
+    client.loop_stop()
