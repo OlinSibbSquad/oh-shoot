@@ -74,9 +74,19 @@ def calculate_center(item, width, height):
     sumy /= 4
     return (sumx, sumy)
 
+def angle_to_turn(width, xcoord):
+    xfrac = xcoord/width
+    xpartial = xfrac*50
+    xfin = xpartial-
+    return xfin
+
+
 def follow_person(verbosity = 2):
     #roombaaaaaa
     bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
+    bot.start()
+    bot.full()
+    sensors = bot.get_sensors()
 	# This camera will point to the camera on the Roomba.
 	cam = cv2.VideoCapture(0)
 	cv2.namedWindow("test")
@@ -87,20 +97,23 @@ def follow_person(verbosity = 2):
     # last_center = (1280/2, 640/2) #Dimensions?!?!??!!??!!? TODO
 	# The number of times to search for a person.
 	for x in range(0, CYCLES):
-		ret, frame = cam.read()
-		cv2.imshow("test", frame)
-		k = cv2.waitKey(1)
-		name = "following_test" + str(x) + ".png"
-		out_name = "following_test" + str(x) + "_out.png"
-		cv2.imwrite(name, frame)
-	# Find bounding boxes for every person in the roomba's field of view.
-		people = bounding_boxes(name, out_name, verbosity)
-        (height, width) = people.pop()
-        (location, area) = calculate_areas(people, height, width)
-        current_max = people[location]
-        center = calculate_center(current_max, heigh, width)
+        if(x%15 == 0):
+    		ret, frame = cam.read()
+    		cv2.imshow("test", frame)
+    		k = cv2.waitKey(1)
+    		name = "following_test" + str(x) + ".png"
+    		out_name = "following_test" + str(x) + "_out.png"
+    		cv2.imwrite(name, frame)
+    	# Find bounding boxes for every person in the roomba's field of view.
+    		people = bounding_boxes(name, out_name, verbosity)
+            (height, width) = people.pop()
+            (location, area) = calculate_areas(people, height, width)
+            current_max = people[location]
+            center = calculate_center(current_max, heigh, width)
 
-        #TODO: Turn
+            #TODO: Turn
+            degree = angle_to_turn(width, center[0])
+            bot.drive_turn(degree, -1)
 
 
 		time.sleep(0.05)
