@@ -105,7 +105,7 @@ def angle_to_turn(width, xcoord):
 def follow_person(communicator, verbosity = 2):
     cam = cv2.VideoCapture(1)
     cv2.namedWindow("test")
-    adjustment_constant = 1.2
+    adjustment_constant = 1.1
 
     img_counter = 0
     current = 0
@@ -134,6 +134,7 @@ def follow_person(communicator, verbosity = 2):
 
             print("Degree: ", degree)
             bot.turn_angle(-degree*adjustment_constant, speed=40)
+            time.sleep(0.3)
             bot.drive_stop()
             async_result = None
 
@@ -144,8 +145,8 @@ def follow_person(communicator, verbosity = 2):
 
         if(x%25 == 0):
             # Send an image to Google
-            # cv2.imshow("test", frame)
-            # k = cv2.waitKey(1)
+            cv2.imshow("test", frame)
+            k = cv2.waitKey(1)
             async_result = pool.apply_async(roomba_threaded, (x, frame, current_max, verbosity, bot)) # tuple of args for foo
 
         time.sleep(0.04)
@@ -175,6 +176,8 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
 
         #TODO: Turn
         degree = angle_to_turn(width, center[0])
+        print("Degree: " + str(degree))
+
     else:
         sees_person = False
     return (degree, current_max, sees_person)
@@ -182,6 +185,7 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
 def main(verbosity = 2):
     c = Communicator()
     while True:
+        bot.drive_stop()
         wait_for_shadow()
         if c.is_armed:
             take_shot()
