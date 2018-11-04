@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 
-from room_checking import *
+from room_checking_threaded import *
 from pycreate2 import Create2
 from time import sleep
+
 
 def bounding_boxes(name, out_name, verbosity):
     """
@@ -102,6 +103,10 @@ def follow_person(verbosity = 2):
     CYCLES = 150
     sees_person = False
     x=0
+
+    #Threadpool
+    pool = ThreadPool(processes=1)
+    async_result = None
     while True:
         x+=1
         ret, frame = cam.read()
@@ -111,32 +116,14 @@ def follow_person(verbosity = 2):
             bot.drive_stop()
 
         if(x%15 == 0):
-            # starttime = time.time()
-            # while time.time() - starttime < 1.0:
-            #     # Clear the buffer
-            #     cam.read()
             cv2.imshow("test", frame)
             k = cv2.waitKey(1)
-            name = "following_test" + str(x) + ".png"
-            out_name = "following_test" + str(x) + "_out.png"
-            cv2.imwrite(name, frame)
-            # Find bounding boxes for every person in the roomba's field of view.
-            people, (width, height) = bounding_boxes(name, out_name, verbosity)
-            # width = image_size[0]
-            # height = image_size[1]
-            if people:
-                sees_person = True
-                (location, area) = calculate_areas(people, height, width)
-                current_max = people[location]
-                center = calculate_center(current_max, height, width)
+            if async_result:
+                (current_max, sees_person) = async_result.get()
+            async_result = pool.apply_async(roomba_threaded, (x, frame, current_max, verbosity, bot)) # tuple of args for foo
 
-                #TODO: Turn
-                degree = angle_to_turn(width, center[0])
-                print("Degree: ", degree)
-                bot.turn_angle(-degree*1.2, speed=40)
-                bot.drive_stop()
-            else:
-                sees_person = False
+
+
         time.sleep(0.05)
     cam.release()
     cv2.destroyAllWindows()
@@ -145,6 +132,29 @@ def follow_person(verbosity = 2):
 	# Calculate motion necessary to travel towards that point
 	# Turn and move wheels towards that point.
 
+def roomba_threaded(x, frame, current_max, verbosity, bot):
+    name = "following_test" + str(x) + ".png"
+    out_name = "following_test" + str(x) + "_out.png"
+    cv2.imwrite(name, frame)
+    # Find bounding boxes for every person in the roomba's field of view.
+    people, (width, height) = bounding_boxes(name, out_name, verbosity)
+    # width = image_size[0]
+    # height = image_size[1]
+    adjustment_constant = 1.2
+    if people:
+        sees_person = True
+        (location, area) = calculate_areas(people, height, width)
+        current_max = people[location]
+        center = calculate_center(current_max, height, width)
+
+        #TODO: Turn
+        degree = angle_to_turn(width, center[0])
+        print("Degree: ", degree)
+        bot.turn_angle(-degree*adjustment_constant, speed=40)
+        bot.drive_stop()
+    else:
+        sees_person = False
+    return (current_max, sees_person)
 
 if __name__ == '__main__':
     verbosity = 2
