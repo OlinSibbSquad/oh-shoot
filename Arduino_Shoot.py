@@ -28,8 +28,8 @@ def take_shot():
     servo.write(default_angle)
     led.write(False)
 
-def wait_for_shadow(threshold = 0.4):
-    while(light.read())<0.4:
+def wait_for_shadow(threshold = 0.55):
+    while(light.read())<threshold:
         # Wait for it to get light again
         sleep(0.01)
     while light.read() > threshold:

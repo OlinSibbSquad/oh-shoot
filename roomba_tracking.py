@@ -51,6 +51,9 @@ def bounding_boxes(name, out_name, verbosity):
             new_list.append(item)
     if(verbosity > 1):
         im.save(out_name)
+        # img = cv2.imread(output_filename,0)
+        # cv2.imshow('image',img)
+        # cv2.waitKey(1)
         print("finishing!")
     # highlight_objects(name, objects, "__.png", 2)
 
@@ -102,7 +105,7 @@ def angle_to_turn(width, xcoord):
 def follow_person(communicator, verbosity = 2):
     cam = cv2.VideoCapture(1)
     cv2.namedWindow("test")
-    adjustment_constant = 1.2
+    adjustment_constant = 1.1
 
     img_counter = 0
     current = 0
@@ -131,6 +134,7 @@ def follow_person(communicator, verbosity = 2):
 
             print("Degree: ", degree)
             bot.turn_angle(-degree*adjustment_constant, speed=40)
+            time.sleep(0.3)
             bot.drive_stop()
             async_result = None
 
@@ -172,6 +176,8 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
 
         #TODO: Turn
         degree = angle_to_turn(width, center[0])
+        print("Degree: " + str(degree))
+
     else:
         sees_person = False
     return (degree, current_max, sees_person)
@@ -179,6 +185,7 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
 def main(verbosity = 2):
     c = Communicator()
     while True:
+        bot.drive_stop()
         wait_for_shadow()
         if c.is_armed:
             take_shot()
