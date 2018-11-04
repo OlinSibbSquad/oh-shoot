@@ -69,6 +69,9 @@ def highlight_faces(image, faces, output_filename):
         draw.line(box + [box[0]], width=5, fill='#00ff00')
 
     im.save(output_filename)
+    img = cv2.imread(output_filename,0)
+    cv2.imshow('image',img)
+    cv2.waitKey(1)
 # [END vision_face_detection_tutorial_process_response]
 
 
@@ -107,7 +110,7 @@ def explicit():
 
 def cvImage():
     curr = 0
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
 
     cv2.namedWindow("test")
 
@@ -115,7 +118,7 @@ def cvImage():
 
     for x in range(0, 100):
         ret, frame = cam.read()
-        cv2.imshow("test", frame)
+        cv2.imshow("test2", frame)
         k = cv2.waitKey(1)
         # time.sleep(1) #sleep is in seconds.
         if (x%20 == 0):

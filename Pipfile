@@ -18,6 +18,7 @@ numpy = "*"
 paho-mqtt = "*"
 scipy = "*"
 imutils = "*"
+authorizenet = "*"
 
 [requires]
 python_version = "3"

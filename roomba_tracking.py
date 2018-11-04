@@ -9,6 +9,12 @@ import random
 from Arduino_Shoot import take_shot, wait_for_shadow
 from mqtt_lib import Communicator
 
+bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
+bot.start()
+bot.full()
+
+
+
 
 def bounding_boxes(name, out_name, verbosity):
     """
@@ -45,6 +51,9 @@ def bounding_boxes(name, out_name, verbosity):
             new_list.append(item)
     if(verbosity > 1):
         im.save(out_name)
+        print("finishing!")
+    # highlight_objects(name, objects, "__.png", 2)
+
     image_size = (im.width, im.height)
     # new_list.insert(0,new_tup)
     return new_list, image_size
@@ -90,14 +99,9 @@ def angle_to_turn(width, xcoord):
     xfrac = xcoord*1.0/width - 0.5
     return xfrac * FOV
 
-bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
-bot.start()
-bot.full()
-
-cam = cv2.VideoCapture(1)
-cv2.namedWindow("test")
-
 def follow_person(communicator, verbosity = 2):
+    cam = cv2.VideoCapture(1)
+    cv2.namedWindow("test")
     adjustment_constant = 1.2
 
     img_counter = 0
@@ -130,22 +134,22 @@ def follow_person(communicator, verbosity = 2):
             bot.drive_stop()
             async_result = None
 
-            if time.time() > next_fire:
+            if time.time() > next_fire and sees_person:
                 # FIRE!
                 next_fire = time.time() + (2 + 3*random.random())
                 take_shot()
 
-        if(x%15 == 0):
+        if(x%25 == 0):
             # Send an image to Google
             cv2.imshow("test", frame)
             k = cv2.waitKey(1)
             async_result = pool.apply_async(roomba_threaded, (x, frame, current_max, verbosity, bot)) # tuple of args for foo
 
-        time.sleep(0.05)
+        time.sleep(0.04)
         x+=1
 
-    # cam.release()
-    # cv2.destroyAllWindows()
+    cam.release()
+    cv2.destroyAllWindows()
     return
 	# Find the center of the top of the box
 	# Calculate motion necessary to travel towards that point

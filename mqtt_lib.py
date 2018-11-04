@@ -6,7 +6,7 @@ class Communicator(object):
     def __init__(self):
         self._channel = 'arming'
         self._client = mqtt.Client('whack-{}'.format(random.randint(0, 100000)))
-        self.is_armed = False
+        self.is_armed = True
         self.last_msg = None
 
         self._client.on_message = self._on_message

@@ -10,7 +10,7 @@ import cv2
 import time
 import io
 import os
-from roomba_tracking import *
+# from roomba_tracking import *
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 
@@ -69,7 +69,7 @@ def label_finding(name, out, verbosity):
 def cvImage(verbosity):
     pool = ThreadPool(processes=1)
     curr = 0
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
     cv2.namedWindow("test")
     img_counter = 0
     last_peepcount = 0
@@ -91,7 +91,8 @@ def cvImage(verbosity):
         # Peep_num logic, where we save if there's 1 person and remembers when it drops to 0
         if(peep_num == 0 & last_peepcount > 0):
             #Take sweet, sweet revenge if the light is on
-            follow_person()
+            # follow_person()
+            pass
         time.sleep(0.05)
     cam.release()
     cv2.destroyAllWindows()
