@@ -51,6 +51,9 @@ def bounding_boxes(name, out_name, verbosity):
             new_list.append(item)
     if(verbosity > 1):
         im.save(out_name)
+        # img = cv2.imread(output_filename,0)
+        # cv2.imshow('image',img)
+        # cv2.waitKey(1)
         print("finishing!")
     # highlight_objects(name, objects, "__.png", 2)
 
@@ -141,8 +144,8 @@ def follow_person(communicator, verbosity = 2):
 
         if(x%25 == 0):
             # Send an image to Google
-            cv2.imshow("test", frame)
-            k = cv2.waitKey(1)
+            # cv2.imshow("test", frame)
+            # k = cv2.waitKey(1)
             async_result = pool.apply_async(roomba_threaded, (x, frame, current_max, verbosity, bot)) # tuple of args for foo
 
         time.sleep(0.04)

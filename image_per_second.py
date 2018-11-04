@@ -118,8 +118,8 @@ def cvImage():
 
     for x in range(0, 100):
         ret, frame = cam.read()
-        cv2.imshow("test2", frame)
-        k = cv2.waitKey(1)
+        # cv2.imshow("test2", frame)
+        # k = cv2.waitKey(1)
         # time.sleep(1) #sleep is in seconds.
         if (x%20 == 0):
 
