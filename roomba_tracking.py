@@ -114,7 +114,7 @@ def follow_person(communicator, verbosity = 2):
     # Three to five seconds
     next_fire = time.time() + 5
 
-    while c.is_armed:
+    while communicator.is_armed:
         ret, frame = cam.read()
         if sees_person:
             bot.drive_straight(80)
