@@ -11,6 +11,9 @@ import time
 import io
 import os
 from roomba_tracking import *
+from threading import Thread
+from multiprocessing.pool import ThreadPool
+
 
 def explicit():
     # from google.cloud import storage
@@ -81,31 +84,27 @@ def label_finding(name, out, verbosity):
 
 
 def cvImage(verbosity):
+    pool = ThreadPool(processes=1)
     curr = 0
     cam = cv2.VideoCapture(1)
     cv2.namedWindow("test")
     img_counter = 0
     last_peepcount = 0
     peep_num = 0
+    async_result = None
 
     for x in range(0, 1000):
         ret, frame = cam.read()
 
-        if (x%20 == 0): #select 1 in 20 images to analyze
+        if (x%15 == 0): #select 1 in 20 images to analyze
             cv2.imshow("test", frame)
             k = cv2.waitKey(1)
-            last_peepcount = peep_num
-            temp = curr % 10
-            string ="test" + str(temp) + ".png" #LIMITS MAX NUMBER OF PICTURES WE WILL SAVE
-            img_name = string.format(img_counter)
-            cv2.imwrite(img_name, frame)
-            if (verbosity > 0):
-                print("{} written!".format(img_name))
-            img_counter += 1
-            img_out_name = "test" + str(temp) + "out.png"
-            max_results = 10
-            peep_num = label_finding(img_name, img_out_name, verbosity)
-            curr += 1
+            if async_result:
+                (last_peepcount, peep_num, img_counter) = async_result.get()
+            async_result = pool.apply_async(toThread, (frame, peep_num, curr, img_counter, verbosity)) # tuple of args for foo
+
+            # frame, peep_num, curr, img_counter, verbosity = toThread(frame, peep_num, curr, img_counter, verbosity)
+
         # Peep_num logic, where we save if there's 1 person and remembers when it drops to 0
         if(peep_num == 0 & last_peepcount > 0):
             #Take sweet, sweet revenge if the light is on
@@ -114,6 +113,21 @@ def cvImage(verbosity):
     cam.release()
     cv2.destroyAllWindows()
     return
+
+def toThread(frame, peep_num, curr, img_counter, verbosity):
+    last_peepcount = peep_num
+    temp = curr % 10
+    string ="test" + str(temp) + ".png" #LIMITS MAX NUMBER OF PICTURES WE WILL SAVE
+    img_name = string.format(img_counter)
+    cv2.imwrite(img_name, frame)
+    if (verbosity > 0):
+        print("{} written!".format(img_name))
+    img_counter += 1
+    img_out_name = "test" + str(temp) + "out.png"
+    max_results = 10
+    peep_num = label_finding(img_name, img_out_name, verbosity)
+    curr += 1
+    return (last_peepcount, peep_num, img_counter)
 
 
 if __name__ == '__main__':
