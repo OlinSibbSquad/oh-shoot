@@ -1,6 +1,7 @@
 *.json
 test*.png
 following*.png
+constants.py
 
 # Created by https://www.gitignore.io/api/linux,python,pycharm,windows,jupyternotebook
 # Edit at https://www.gitignore.io/?templates=linux,python,pycharm,windows,jupyternotebook
