@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
 from room_checking import *
+from pycreate2 import Create2
+from time import sleep
 
 def bounding_boxes(name, out_name, verbosity):
     """
@@ -27,7 +29,6 @@ def bounding_boxes(name, out_name, verbosity):
 
     im = Image.open(name)
     draw = ImageDraw.Draw(im)
-
     new_list = []
     for item in objects:
         if (item.name in["Person", "Man", "Woman", "Girl", "Boy"]) and (item.score > 0.65):
@@ -38,8 +39,10 @@ def bounding_boxes(name, out_name, verbosity):
             new_list.append(item)
     if(verbosity > 1):
         im.save(out_name)
-    new_list.insert((im.width, im.height),0)
-    return new_list
+    image_size = (im.width, im.height)
+    # new_list.insert(0,new_tup)
+    return new_list, image_size
+
 
 def calculate_areas(people, height, width):
     """
@@ -53,13 +56,14 @@ def calculate_areas(people, height, width):
     max_area_location = 0
     for i in range(len(people)):
         sum = 0
-        for vertex in item.bounding_poly.normalized_vertices:
+        for vertex in people[i].bounding_poly.normalized_vertices:
             sum += vertex.x * width + vertex.y * height
         sum /= 4
         if (sum > max_area):
             max_area = sum
             max_area_location = i
     return (max_area_location, max_area)
+
 
 def calculate_center(item, width, height):
     """
@@ -74,11 +78,11 @@ def calculate_center(item, width, height):
     sumy /= 4
     return (sumx, sumy)
 
+
 def angle_to_turn(width, xcoord):
-    xfrac = xcoord/width
-    xpartial = xfrac*50
-    xfin = xpartial-
-    return xfin
+    FOV = 45
+    xfrac = xcoord*1.0/width - 0.5
+    return xfrac * FOV
 
 
 def follow_person(verbosity = 2):
@@ -87,39 +91,56 @@ def follow_person(verbosity = 2):
     bot.start()
     bot.full()
     sensors = bot.get_sensors()
-	# This camera will point to the camera on the Roomba.
-	cam = cv2.VideoCapture(0)
-	cv2.namedWindow("test")
-	img_counter = 0
-	current = 0
+    # This camera will point to the camera on the Roomba.
+    cam = cv2.VideoCapture(1)
+    cv2.namedWindow("test")
+    img_counter = 0
+    current = 0
     previous_max = None
     current_max = None
-    # last_center = (1280/2, 640/2) #Dimensions?!?!??!!??!!? TODO
-	# The number of times to search for a person.
-	for x in range(0, CYCLES):
+    # The number of times to search for a person.
+    CYCLES = 150
+    sees_person = False
+    x=0
+    while True:
+        x+=1
+        ret, frame = cam.read()
+        if sees_person:
+            bot.drive_straight(80)
+        else:
+            bot.drive_stop()
+
         if(x%15 == 0):
-    		ret, frame = cam.read()
-    		cv2.imshow("test", frame)
-    		k = cv2.waitKey(1)
-    		name = "following_test" + str(x) + ".png"
-    		out_name = "following_test" + str(x) + "_out.png"
-    		cv2.imwrite(name, frame)
-    	# Find bounding boxes for every person in the roomba's field of view.
-    		people = bounding_boxes(name, out_name, verbosity)
-            (height, width) = people.pop()
-            (location, area) = calculate_areas(people, height, width)
-            current_max = people[location]
-            center = calculate_center(current_max, heigh, width)
+            # starttime = time.time()
+            # while time.time() - starttime < 1.0:
+            #     # Clear the buffer
+            #     cam.read()
+            cv2.imshow("test", frame)
+            k = cv2.waitKey(1)
+            name = "following_test" + str(x) + ".png"
+            out_name = "following_test" + str(x) + "_out.png"
+            cv2.imwrite(name, frame)
+            # Find bounding boxes for every person in the roomba's field of view.
+            people, (width, height) = bounding_boxes(name, out_name, verbosity)
+            # width = image_size[0]
+            # height = image_size[1]
+            if people:
+                sees_person = True
+                (location, area) = calculate_areas(people, height, width)
+                current_max = people[location]
+                center = calculate_center(current_max, height, width)
 
-            #TODO: Turn
-            degree = angle_to_turn(width, center[0])
-            bot.drive_turn(degree, -1)
-
-
-		time.sleep(0.05)
-	cam.release()
-	cv2.destroyAllWindows()
-	return
+                #TODO: Turn
+                degree = angle_to_turn(width, center[0])
+                print("Degree: ", degree)
+                bot.turn_angle(-degree*1.2, speed=40)
+                bot.drive_stop()
+            else:
+                sees_person = False
+        time.sleep(0.05)
+    cam.release()
+    cv2.destroyAllWindows()
+    return
 	# Find the center of the top of the box
 	# Calculate motion necessary to travel towards that point
 	# Turn and move wheels towards that point.

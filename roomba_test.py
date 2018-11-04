@@ -12,7 +12,7 @@ sensors = bot.get_sensors()
 print(sensors)
 print(sensors.battery_charge, sensors.battery_capacity)
 
-bot.drive_distance(-.5, speed=40, stop=True)
+# bot.drive_distance(.1, speed=40, stop=True)
 
 # bot.drive_turn(40, 1)
 # sleep(2)
@@ -20,6 +20,6 @@ bot.drive_distance(-.5, speed=40, stop=True)
 # bot.drive_turn(40, -1)
 # sleep(2)
 
-# bot.turn_angle(70, speed=40)
+bot.turn_angle(-3, speed=40)
 
 bot.stop()
