@@ -18,23 +18,28 @@ servo = board.get_pin('d:3:s')
 light = board.get_pin('a:0:i')
 led = board.get_pin('d:13:o')
 
-for i in range(1000):
+servo.write(default_angle)
+led.write(False)
+
+def take_shot():
+    servo.write(triggered_angle)
+    led.write(True)
+    sleep(trigtime)
     servo.write(default_angle)
     led.write(False)
-    print(light.read())
-    #servo.write(i)
-    sleep(0.01)
-    if(light.read()) < 0.4:
-        servo.write(triggered_angle)
-        led.write(True)
-        sleep(trigtime)
-        servo.write(default_angle)
-        led.write(False)
-        while(light.read())<0.4:
-            sleep(0.1)
-            # if(light.read())>= 0.4:
-            #     break
 
-board.exit()
+def wait_for_shadow(threshold = 0.4):
+    while(light.read())<0.4:
+        # Wait for it to get light again
+        sleep(0.01)
+    while light.read() > threshold:
+        print("Light value", light.read())
+        sleep(0.01)
 
 
+if __name__ == '__main__':
+    while True:
+        wait_for_shadow()
+        take_shot()
+
+    board.exit()

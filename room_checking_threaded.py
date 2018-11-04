@@ -15,23 +15,6 @@ from threading import Thread
 from multiprocessing.pool import ThreadPool
 
 
-def explicit():
-    # from google.cloud import storage
-    # import os, sys
-    #
-    # # Explicitly use service account credentials by specifying the private key
-    # # file.
-    # print('Credendtials from environ: {}'.format(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')))
-    # __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-    # test = open(os.path.join(__location__, 'SibbSquadV2-8e1c8113e39c.json'), 'r');
-    # loc = sys.path[0] + '/SibbSquadV2-8e1c8113e39c.json'
-    # storage_client = storage.Client.from_service_account_json('SibbSquadV2-8e1c8113e39c.json')
-    # test.read()
-    # # Make an authenticated API request
-    # buckets = list(storage_client.list_buckets())
-    pass
-
-
 def highlight_objects(image, faces, output_filename, verbosity):
     """Draws a polygon around the faces, then saves to output_filename.
 
@@ -132,5 +115,4 @@ def toThread(frame, peep_num, curr, img_counter, verbosity):
 
 if __name__ == '__main__':
     verbosity = 0
-    explicit()
     cvImage(verbosity)

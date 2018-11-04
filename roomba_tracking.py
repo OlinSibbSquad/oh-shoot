@@ -3,6 +3,11 @@
 from room_checking_threaded import *
 from pycreate2 import Create2
 from time import sleep
+import time
+import random
+
+from Arduino_Shoot import take_shot, wait_for_shadow
+from mqtt_lib import Communicator
 
 
 def bounding_boxes(name, out_name, verbosity):
@@ -85,48 +90,62 @@ def angle_to_turn(width, xcoord):
     xfrac = xcoord*1.0/width - 0.5
     return xfrac * FOV
 
+bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
+bot.start()
+bot.full()
 
-def follow_person(verbosity = 2):
-    #roombaaaaaa
-    bot = Create2('/dev/serial/by-id/usb-FTDI_FT231X_USB_UART_DN026EMT-if00-port0')
-    bot.start()
-    bot.full()
-    sensors = bot.get_sensors()
-    # This camera will point to the camera on the Roomba.
-    cam = cv2.VideoCapture(1)
-    cv2.namedWindow("test")
+cam = cv2.VideoCapture(1)
+cv2.namedWindow("test")
+
+def follow_person(communicator, verbosity = 2):
+    adjustment_constant = 1.2
+
     img_counter = 0
     current = 0
     previous_max = None
     current_max = None
-    # The number of times to search for a person.
-    CYCLES = 150
     sees_person = False
     x=0
 
     #Threadpool
     pool = ThreadPool(processes=1)
     async_result = None
-    while True:
-        x+=1
+
+    # Three to five seconds
+    next_fire = time.time() + 5
+
+    while c.is_armed:
         ret, frame = cam.read()
         if sees_person:
             bot.drive_straight(80)
         else:
             bot.drive_stop()
 
+        if async_result:
+            # Steer
+            (degree, current_max, sees_person) = async_result.get()
+
+            print("Degree: ", degree)
+            bot.turn_angle(-degree*adjustment_constant, speed=40)
+            bot.drive_stop()
+            async_result = None
+
+            if time.time() > next_fire:
+                # FIRE!
+                next_fire = time.time() + (2 + 3*random.random())
+                take_shot()
+
         if(x%15 == 0):
+            # Send an image to Google
             cv2.imshow("test", frame)
             k = cv2.waitKey(1)
-            if async_result:
-                (current_max, sees_person) = async_result.get()
             async_result = pool.apply_async(roomba_threaded, (x, frame, current_max, verbosity, bot)) # tuple of args for foo
 
-
-
         time.sleep(0.05)
-    cam.release()
-    cv2.destroyAllWindows()
+        x+=1
+
+    # cam.release()
+    # cv2.destroyAllWindows()
     return
 	# Find the center of the top of the box
 	# Calculate motion necessary to travel towards that point
@@ -140,7 +159,7 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
     people, (width, height) = bounding_boxes(name, out_name, verbosity)
     # width = image_size[0]
     # height = image_size[1]
-    adjustment_constant = 1.2
+    degree = 0
     if people:
         sees_person = True
         (location, area) = calculate_areas(people, height, width)
@@ -149,14 +168,20 @@ def roomba_threaded(x, frame, current_max, verbosity, bot):
 
         #TODO: Turn
         degree = angle_to_turn(width, center[0])
-        print("Degree: ", degree)
-        bot.turn_angle(-degree*adjustment_constant, speed=40)
-        bot.drive_stop()
     else:
         sees_person = False
-    return (current_max, sees_person)
+    return (degree, current_max, sees_person)
+
+def main(verbosity = 2):
+    c = Communicator()
+    while True:
+        wait_for_shadow()
+        if c.is_armed:
+            take_shot()
+            follow_person(c, verbosity)
+
 
 if __name__ == '__main__':
     verbosity = 2
-    explicit()
-    follow_person(verbosity)
+    main(verbosity)
+    # follow_person(Communicator(), verbosity)
