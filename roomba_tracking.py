@@ -133,8 +133,8 @@ def follow_person(verbosity = 2):
 	# Turn and move wheels towards that point.
 
 def roomba_threaded(x, frame, current_max, verbosity, bot):
-    name = "following_test" + str(x) + ".png"
-    out_name = "following_test" + str(x) + "_out.png"
+    name = "following_test" + str(x % 150) + ".png"
+    out_name = "following_test" + str(x % 150) + "_out.png"
     cv2.imwrite(name, frame)
     # Find bounding boxes for every person in the roomba's field of view.
     people, (width, height) = bounding_boxes(name, out_name, verbosity)
