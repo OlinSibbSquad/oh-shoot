@@ -15,12 +15,9 @@ pyfirmata = "*"
 "pycreate2" = "*"
 opencv-python = "*"
 numpy = "*"
-<<<<<<< Updated upstream
 paho-mqtt = "*"
-=======
 scipy = "*"
 imutils = "*"
->>>>>>> Stashed changes
 
 [requires]
 python_version = "3"
